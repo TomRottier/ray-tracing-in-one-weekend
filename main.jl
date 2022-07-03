@@ -7,8 +7,22 @@ end
 
 point(r::Ray, t) = r.origin + r.direction * t
 
+# check if ray hits sphere
+function hit_sphere(centre, radius, r::Ray)
+    ac = r.origin - centre
+    a = r.direction ⋅ r.direction
+    b = 2(r.direction ⋅ ac)
+    c = ac ⋅ ac - radius^2
+
+    return (b^2 - 4 * a * c) > 0
+end
+
+
 # determine colour of ray 
 function ray_colour(r::Ray)
+    # colour red if ray hits sphere
+    hit_sphere([0, 0, -1], 0.5, r) && return RGB(1, 0, 0)
+
     # scale y component of direction between 0 and 1
     t = 0.5(normalize(r.direction)[2] + 1)
 
@@ -17,6 +31,7 @@ function ray_colour(r::Ray)
 
     return c
 end
+
 
 
 function main()
