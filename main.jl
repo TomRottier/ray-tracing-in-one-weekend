@@ -11,28 +11,34 @@ point(r::Ray, t) = r.origin + r.direction * t
 function hit_sphere(centre, radius, r::Ray)
     ac = r.origin - centre
     a = r.direction ⋅ r.direction
-    b = 2(r.direction ⋅ ac)
+    halfb = r.direction ⋅ ac
     c = ac ⋅ ac - radius^2
+    discriminant = halfb^2 - a * c
 
-    return (b^2 - 4 * a * c) > 0
+    return discriminant < 0 ? -1 : (-halfb - √discriminant) / a
 end
-
 
 # determine colour of ray 
 function ray_colour(r::Ray)
-    # colour red if ray hits sphere
-    hit_sphere([0, 0, -1], 0.5, r) && return RGB(1, 0, 0)
+    # define sphere
+    sphere_centre = [0, 0, -1]
+    sphere_radius = 0.5
 
-    # scale y component of direction between 0 and 1
-    t = 0.5(normalize(r.direction)[2] + 1)
+    # intersection point if exists
+    t = hit_sphere(sphere_centre, sphere_radius, r)
 
-    # linearly interpolate between white and blue depending on scaled height
-    c = RGB((1 - t) * [1, 1, 1] + t * [0.5, 0.7, 1.0]...)
+    return if t > 0.0 # only want rays forward of camera
+        # normal vector to surface of sphere at intersection point 
+        normal = normalize(point(r, t) - sphere_centre)
 
-    return c
+        # colour ray based on normal vector
+        RGB(0.5(normal .+ 1)...)
+
+    else # otherwise shade background normally
+        _t = 0.5(normalize(r.direction)[2] + 1)
+        RGB((1 - _t) * [1, 1, 1] + _t * [0.5, 0.7, 1.0]...)
+    end
 end
-
-
 
 function main()
     # image
