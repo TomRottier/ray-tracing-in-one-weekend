@@ -1,8 +1,9 @@
 using LinearAlgebra, Images, Term.Progress
 
 include("camera.jl")
-include("hittable.jl")
 include("ray.jl")
+include("hittable.jl")
+include("materials.jl")
 
 
 function main()
@@ -15,6 +16,7 @@ function main()
     # camera
     camera = Camera(aspect_ratio=aspect_ratio, height=2.0, focal_length=1.0, origin=[0.0, 0.0, 0.0])
     n_samples = 100
+    max_depth = 50
 
     # world - list of hittable objects
     sphere1 = Sphere([0.0, 0.0, -1.0], 0.5)
@@ -36,12 +38,12 @@ function main()
                 r = get_ray(camera, u, v)
 
                 # determine colour of ray
-                _c = ray_colour(world, r)
+                _c = ray_colour(world, r, max_depth)
                 c += [_c.r, _c.g, _c.b] / n_samples
             end
             # reverse index to plot in same direction
             jj = reverse(1:image_height)[j]
-            output[jj, i] = RGB(c...)
+            output[jj, i] = RGB(sqrt.(c)...)
         end
     end
 
