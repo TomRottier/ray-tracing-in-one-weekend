@@ -8,4 +8,4 @@ Implementation of [Ray Tracing in One Weekend](https://raytracing.github.io/book
   - outputs to an Matrix{RGB} and saves to file using [Images.jl](https://github.com/JuliaImages/Images.jl)
 
 ## Latest image
-![latest image](img.png)
+![latest image](image.png)
