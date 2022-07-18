@@ -6,3 +6,6 @@ Implementation of [Ray Tracing in One Weekend](https://raytracing.github.io/book
 - Differences to C++ version:
   - Julia has vectors and vector algebra built in so no need to create own library. I therefore skip chapter three
   - outputs to an Matrix{RGB} and saves to file using [Images.jl](https://github.com/JuliaImages/Images.jl)
+
+## Latest image
+![latest image](img.png)

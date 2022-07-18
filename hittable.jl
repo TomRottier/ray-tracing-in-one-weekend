@@ -6,6 +6,7 @@ struct HitRecord{T<:AbstractFloat}
     point::Vector{T} # location of hit
     normal::Vector{T} # normal vector to hittable object at `point` - always point out from object
     t::T # distance along ray to hit
+    object::AbstractHittable # the object the ray has hit
 end
 
 # check hit in vector of hittables
@@ -28,10 +29,11 @@ function hit(objs::Vector{T}, r::Ray, tmin, tmax) where {T<:AbstractHittable}
 end
 
 
-#### hittable objects
-struct Sphere{T<:AbstractFloat} <: AbstractHittable
+#### hittable objects ####
+struct Sphere{T<:AbstractFloat,M<:AbstractMaterial} <: AbstractHittable
     origin::Vector{T}
     radius::T
+    material::M
 end
 
 # location of intersection with ray
@@ -55,5 +57,5 @@ function hit(sphere::Sphere, r::Ray, tmin, tmax)
     normal = normalize(p - sphere.origin)
     t = t
 
-    return HitRecord(p, normal, t)
+    return HitRecord(p, normal, t, sphere)
 end

@@ -2,8 +2,9 @@ using LinearAlgebra, Images, Term.Progress
 
 include("camera.jl")
 include("ray.jl")
-include("hittable.jl")
 include("materials.jl")
+include("hittable.jl")
+include("utils.jl")
 
 
 function main()
@@ -19,9 +20,12 @@ function main()
     max_depth = 50
 
     # world - list of hittable objects
-    sphere1 = Sphere([0.0, 0.0, -1.0], 0.5)
-    sphere2 = Sphere([0.0, -100.5, -1.0], 100.0)
-    world = [sphere1, sphere2]
+    ground = Sphere([0.0, -100.5, -1.0], 100.0, Lambertian([0.8, 0.8, 0.0]))
+    sphere_centre = Sphere([0.0, 0.0, -1.0], 0.5, Lambertian([0.7, 0.3, 0.3]))
+    sphere_left = Sphere([-1.0, 0.0, -1.0], 0.5, Metal([0.8, 0.8, 0.8], 0.3))
+    sphere_right = Sphere([1.0, 0.0, -1.0], 0.5, Metal([0.8, 0.6, 0.2], 1.0))
+
+    world = [ground, sphere_centre, sphere_left, sphere_right]
 
     # render
     @track for i in 1:image_width
@@ -38,7 +42,7 @@ function main()
                 r = get_ray(camera, u, v)
 
                 # determine colour of ray
-                _c = ray_colour(world, r, max_depth)
+                _c = RGB(ray_colour(world, r, max_depth)...)
                 c += [_c.r, _c.g, _c.b] / n_samples
             end
             # reverse index to plot in same direction
@@ -50,4 +54,5 @@ function main()
     return output
 end
 
-main()
+img = main()
+save("image.png", img)
