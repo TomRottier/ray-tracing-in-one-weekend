@@ -15,3 +15,19 @@ end
 
 # ray reflection for incoming ray v and normal n at intersection point
 reflect(v, n) = v - 2 * (v ⋅ n) * n
+
+# ray refraction for incoming UNIT ray r, normal n and refraction indicies ratio
+function refract(r, n, η_over_η′)
+    cosθ = min(-r ⋅ n, 1.0)
+    rperp = η_over_η′ * (r + cosθ * n)
+    rpara = -√(1 - sum(abs2, rperp)) * n
+
+    return rperp + rpara
+end
+
+# Schlick approximation of reflectance of glass
+function reflectance(cosine, ref_idx)
+    r0 = (1 - ref_idx) / (1 + ref_idx)
+    r0 = r0^2
+    return r0 + (1 - r0) * (1 - cosine)^5
+end

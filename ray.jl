@@ -19,9 +19,12 @@ function ray_colour(objs::Vector, r::Ray, depth) #where {T<:AbstractHittable}
         # scatter ray
         attenuation, scattered_ray = scatter(rec.object, r, rec)
 
-        # colour based on new ray
-        (attenuation .* ray_colour(objs, scattered_ray, depth - 1))
-        # RGB(0.5(rec.normal + [1, 1, 1])...)
+        if scattered_ray isa Ray
+            # colour based on new ray
+            (attenuation .* ray_colour(objs, scattered_ray, depth - 1))
+        else
+            (0.0, 0.0, 0.0)
+        end
 
     else # otherwise colour background normally
         _t = 0.5(normalize(r.direction)[2] + 1)

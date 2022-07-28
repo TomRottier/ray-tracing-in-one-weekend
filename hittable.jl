@@ -6,6 +6,7 @@ struct HitRecord{T<:AbstractFloat}
     point::Vector{T} # location of hit
     normal::Vector{T} # normal vector to hittable object at `point` - always point out from object
     t::T # distance along ray to hit
+    front_face::Bool # is hit on outside (true) or inside of object
     object::AbstractHittable # the object the ray has hit
 end
 
@@ -28,7 +29,6 @@ function hit(objs::Vector{T}, r::Ray, tmin, tmax) where {T<:AbstractHittable}
     return hit_anything ? rec : false
 end
 
-
 #### hittable objects ####
 struct Sphere{T<:AbstractFloat,M<:AbstractMaterial} <: AbstractHittable
     origin::Vector{T}
@@ -50,12 +50,19 @@ function hit(sphere::Sphere, r::Ray, tmin, tmax)
 
     # check if hit in bounds
     t = (-halfb - √discriminant) / a
-    !(tmin ≤ t ≤ tmax) && return false
+    # !(tmin ≤ t ≤ tmax) && return false
+    if t < tmin || tmax < t
+        t = (-halfb + √discriminant) / a
+        if t < tmin || tmax < t
+            return false
+        end
+    end
 
     # return HitRecord otherwise
     p = point(r, t)
-    normal = normalize(p - sphere.origin)
-    t = t
+    out_normal = (p - sphere.origin) / sphere.radius # quicker way to normalise
+    front_face = r.direction ⋅ out_normal < 0
+    normal = front_face ? out_normal : -out_normal
 
-    return HitRecord(p, normal, t, sphere)
+    return HitRecord(p, normal, t, front_face, sphere)
 end

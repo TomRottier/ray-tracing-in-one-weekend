@@ -21,38 +21,44 @@ function main()
 
     # world - list of hittable objects
     ground = Sphere([0.0, -100.5, -1.0], 100.0, Lambertian([0.8, 0.8, 0.0]))
-    sphere_centre = Sphere([0.0, 0.0, -1.0], 0.5, Lambertian([0.7, 0.3, 0.3]))
-    sphere_left = Sphere([-1.0, 0.0, -1.0], 0.5, Metal([0.8, 0.8, 0.8], 0.3))
-    sphere_right = Sphere([1.0, 0.0, -1.0], 0.5, Metal([0.8, 0.6, 0.2], 1.0))
+    sphere_centre = Sphere([0.0, 0.0, -1.0], 0.5, Lambertian([0.1, 0.2, 0.5]))
+    # sphere_left = Sphere([-1.0, 0.0, -1.0], 0.5, Metal([0.8, 0.8, 0.8], 0.3))
+    sphere_left = Sphere([-1.0, 0.0, -1.0], -0.4, Dielectric(1.5))
+    sphere_right = Sphere([1.0, 0.0, -1.0], 0.5, Metal([0.8, 0.6, 0.2], 0.0))
 
     world = [ground, sphere_centre, sphere_left, sphere_right]
 
     # render
-    @track for i in 1:image_width
-        for j in 1:image_height
-            c = zeros(3)
+    pb = ProgressBar()
+    job = addjob!(pb; N=image_width)
+    with(pb) do
+        Threads.@threads for i in 1:image_width
+            for j in 1:image_height
+                c = zeros(3)
 
-            # repeat to get average pixel colour
-            for _ in 1:n_samples
-                # relative position of pixel in image
-                u = (i - 1 + rand()) / (image_width - 1)
-                v = (j - 1 + rand()) / (image_height - 1)
+                # repeat to get average pixel colour
+                for _ in 1:n_samples
+                    # relative position of pixel in image
+                    u = (i - 1 + rand()) / (image_width - 1)
+                    v = (j - 1 + rand()) / (image_height - 1)
 
-                # ray from camera origin to point in world coordinates
-                r = get_ray(camera, u, v)
+                    # ray from camera origin to point in world coordinates
+                    r = get_ray(camera, u, v)
 
-                # determine colour of ray
-                _c = RGB(ray_colour(world, r, max_depth)...)
-                c += [_c.r, _c.g, _c.b] / n_samples
+                    # determine colour of ray
+                    _c = RGB(ray_colour(world, r, max_depth)...)
+                    c += [_c.r, _c.g, _c.b] / n_samples
+                end
+                # reverse index to plot in same direction
+                jj = reverse(1:image_height)[j]
+                output[jj, i] = RGB(sqrt.(c)...)
             end
-            # reverse index to plot in same direction
-            jj = reverse(1:image_height)[j]
-            output[jj, i] = RGB(sqrt.(c)...)
+            update!(job)
         end
     end
 
     return output
 end
 
-img = main()
+img = @time main()
 save("image.png", img)
