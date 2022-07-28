@@ -4,28 +4,37 @@ struct Camera{T<:AbstractFloat}
     viewport_width::T
     focal_length::T
     origin::Vector{T}
+    viewport_origin::Vector{T}
+    u::Vector{T} # horizontal axis
+    v::Vector{T} # vertical axis
+    w::Vector{T} # long axis
 end
 
-Camera(; aspect_ratio, height, focal_length, origin, fov) = Camera(aspect_ratio, height, height * aspect_ratio, focal_length, origin)
-
 # determine camera parameters from vertical field of view angle (degrees)
-function Camera(aspect_ratio, focal_length, vfov, origin=[0.0, 0.0, 0.0])
+function Camera(origin, lookat, vup, vfov, aspect_ratio)
     # viewport height
-    h = focal_length * tand(vfov / 2)
+    h = tand(vfov / 2) # shouldnt be multiplied by focal length?
     viewport_height = 2h
     viewport_width = aspect_ratio * viewport_height
 
-    return Camera(aspect_ratio, viewport_height, viewport_width, focal_length, origin)
+    # determine viewport origin - lower left corner
+    w = normalize!(origin - lookat)
+    u = normalize!(vup × w)
+    v = w × u
+
+    horizontal = viewport_width * u
+    vertical = viewport_height * v
+    viewport_origin = origin - horizontal / 2 - vertical / 2 - w
+
+    focal_length = 0.0 # ???
+
+    return Camera(aspect_ratio, viewport_height, viewport_width, focal_length, origin, viewport_origin, u, v, w)
 
 end
-# Camera(; aspect_ratio, width, focal_length, origin) = Camera(aspect_ratio, width / aspect_ratio, width, focal_length, origin)
-
-
-# origin of viewport - lower left corner
-viewport_origin(c::Camera) = c.origin - [c.viewport_width / 2, 0, 0] - [0, c.viewport_height / 2, 0] - [0, 0, c.focal_length]
 
 # ray from camera to point on image
-get_ray(c::Camera, u, v) = Ray(c.origin, viewport_origin(c) + u * [c.viewport_width, 0, 0] + v * [0, c.viewport_height, 0] - c.origin)
+get_ray(c::Camera, s, t) =
+    Ray(c.origin, c.viewport_origin + s * c.viewport_width * c.u + t * c.viewport_height * c.v - c.origin)
 
 # mean colour from random samples of rays
 function avg_ray()
