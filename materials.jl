@@ -18,7 +18,7 @@ Lambertian(col) = Lambertian(col, col) # defaults to same attenuation as colour
 # lambertian materials scatter rays in random directions
 function scatter(mat::Lambertian, r::Ray, rec::HitRecord)
     # random direction of scattered ray
-    scatter_direction = rec.normal + normalize!(random_unit_sphere())
+    scatter_direction = rec.normal + normalize(random_unit_sphere())
 
     # catch degenerate rays
     if all(abs.(scatter_direction) .< 1e-8)
@@ -45,7 +45,8 @@ Metal(col, fuzziness) = Metal(col, col, fuzziness) # default attenuation
 
 # ray scatter for Metal material
 function scatter(mat::Metal, r::Ray, rec::HitRecord)
-    scattered = reflect(normalize!(r.direction), rec.normal) + mat.fuzziness * random_unit_sphere()
+    reflected = reflect(normalize(r.direction), rec.normal)
+    scattered = reflected + mat.fuzziness * random_unit_sphere()
 
     return scattered ⋅ rec.normal > 0 ? Ray(rec.point, scattered) : false
 end
@@ -63,12 +64,10 @@ function scatter(mat::Dielectric, r::Ray, rec::HitRecord)
     refraction_ratio = rec.front_face ? (1.0 / mat.IR) : mat.IR # ir / 1.0 # one(T) / mat.IR
 
     # check if ray can refract
-    cosθ = min(-normalize!(r.direction) ⋅ rec.normal, 1.0) # one(T)
-    sinθ = √(1 - cosθ^2)
-
-    cannot_refract = refraction_ratio * sinθ > 1.0
-
     unit_direction = normalize(r.direction)
+    cosθ = min(-unit_direction ⋅ rec.normal, 1.0) # one(T)
+    sinθ = √(1 - cosθ^2)
+    cannot_refract = refraction_ratio * sinθ > 1.0
 
     # reflect if ray cannot refract
     if (cannot_refract || reflectance(cosθ, refraction_ratio) > rand())

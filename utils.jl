@@ -9,7 +9,7 @@ function random_unit_sphere()
         # continue if not inside unit sphere
         (x^2 + y^2 + z^2) > 1.0 && continue
 
-        return normalize([x, y, z])
+        return [x, y, z] #normalize!([x, y, z])
     end
 end
 
@@ -20,7 +20,7 @@ reflect(v, n) = v - 2 * (v ⋅ n) * n
 function refract(r, n, η_over_η′)
     cosθ = min(-r ⋅ n, 1.0)
     rperp = η_over_η′ * (r + cosθ * n)
-    rpara = -√(1 - sum(abs2, rperp)) * n
+    rpara = -√(1.0 - sum(abs2, rperp)) * n
 
     return rperp + rpara
 end

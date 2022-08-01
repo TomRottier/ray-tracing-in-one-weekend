@@ -40,29 +40,29 @@ end
 function hit(sphere::Sphere, r::Ray, tmin, tmax)
     # solve intersection equation
     ac = r.origin - sphere.origin
-    a = r.direction ⋅ r.direction
+    a = sum(abs2, r.direction)
     halfb = r.direction ⋅ ac
-    c = ac ⋅ ac - sphere.radius^2
+    c = sum(abs2, ac) - sphere.radius^2
     discriminant = halfb^2 - a * c
 
     # return if no hit
     discriminant < 0 && return false
+    sqrtd = √discriminant
 
-    # check if hit in bounds
-    t = (-halfb - √discriminant) / a
-    # !(tmin ≤ t ≤ tmax) && return false
-    if t < tmin || tmax < t
-        t = (-halfb + √discriminant) / a
-        if t < tmin || tmax < t
+    # find nearest root that lies in the acceptable range
+    root = (-halfb - sqrtd) / a
+    if root < tmin || tmax < root
+        root = (-halfb + sqrtd) / a
+        if root < tmin || tmax < root
             return false
         end
     end
 
     # return HitRecord otherwise
-    p = point(r, t)
+    p = point(r, root)
     out_normal = (p - sphere.origin) / sphere.radius # quicker way to normalise
     front_face = r.direction ⋅ out_normal < 0
     normal = front_face ? out_normal : -out_normal
 
-    return HitRecord(p, normal, t, front_face, sphere)
+    return HitRecord(p, normal, root, front_face, sphere)
 end

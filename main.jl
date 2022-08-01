@@ -16,12 +16,12 @@ function main()
 
     # camera
     # camera = Camera(aspect_ratio=aspect_ratio, height=2.0, focal_length=1.0, origin=[0.0, 0.0, 0.0])
-    camera = Camera([-2.0, 2.0, 1.0], [0.0, 0.0, -1.0], [0.0, 1.0, 0.0], 90, aspect_ratio)
+    camera = Camera([-2.0, 2.0, 1.0], [0.0, 0.0, -1.0], [0.0, 1.0, 0.0], 20, aspect_ratio)
     n_samples = 100
     max_depth = 50
 
     # world - list of hittable objects
-    ground = Sphere([0.0, -1000.0, 0.0], 1000.0, Lambertian([0.5, 0.5, 0.5]))
+    ground = Sphere([0.0, -100.5, 0.0], 100.0, Lambertian([0.8, 0.8, 0.0]))
     sphere_centre = Sphere([0.0, 0.0, -1.0], 0.5, Lambertian([0.1, 0.2, 0.5]))
     # sphere_left = Sphere([-1.0, 0.0, -1.0], 0.5, Metal([0.8, 0.8, 0.8], 0.3))
     sphere_left = Sphere([-1.0, 0.0, -1.0], -0.4, Dielectric(1.5))
