@@ -1,5 +1,7 @@
 # create random scatter_direction    ground = Sphere([0.0, -1000.0, 0.0], 1000.0, Lambertian([0.5, 0.5, 0.5]))
-function random_scene()
+function random_scene(seed=123456)
+    Random.seed!(seed)
+
     ground = Sphere([0, -1000.0, 0], 1000.0, Lambertian([0.5, 0.5, 0.5]))
     world = AbstractHittable[ground]
 
@@ -43,4 +45,23 @@ function random_scene()
     push!(world, Sphere([4.0, 1.0, 0], 1.0, material3))
 
     return world
+end
+
+
+function two_sphere_scene()
+    ground = Sphere([0, -1000.0, 0], 1000.0, Lambertian([0.5, 0.5, 0.5]))
+    world = AbstractHittable[ground]
+
+    # spheres
+    material1 = Dielectric(1.5)
+    push!(world, Sphere([0.0, 1, 0], 1.0, material1))
+
+    material2 = Lambertian([0.4, 0.2, 0.1])
+    push!(world, Sphere([-4.0, 1, 0], 1.0, material2))
+
+    material3 = Metal([0.7, 0.6, 0.5], 0.0)
+    push!(world, Sphere([4.0, 1.0, 0], 1.0, material3))
+
+    return world
+
 end

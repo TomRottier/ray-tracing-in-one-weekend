@@ -1,37 +1,35 @@
-using LinearAlgebra, Images, Term.Progress
+using LinearAlgebra, Random
+using Images, Term.Progress
 
 include("camera.jl")
 include("ray.jl")
 include("materials.jl")
 include("hittable.jl")
 include("utils.jl")
+include("scene.jl")
 
 
 function main()
     # image
-    aspect_ratio = 16 / 9
-    image_width = 400
+    aspect_ratio = 3 / 2
+    image_width = 200
     image_height = floor(Int, image_width / aspect_ratio)
     output = Matrix{RGB}(undef, image_height, image_width)
 
-    # camera
-    lookfrom = [3.0, 3.0, 2.0]
-    lookat = [0.0, 0.0, -1.0]
-    vup = [0.0, 1.0, 0.0]
-    focus_dist = norm(lookfrom - lookat)
-    aperture = 2.0
-    camera = Camera(lookfrom, lookat, vup, 20, aspect_ratio, aperture, focus_dist)
+    # ray parameters
     n_samples = 100
     max_depth = 50
 
-    # world - list of hittable objects
-    ground = Sphere([0.0, -100.5, 0.0], 100.0, Lambertian([0.8, 0.8, 0.0]))
-    sphere_centre = Sphere([0.0, 0.0, -1.0], 0.5, Lambertian([0.1, 0.2, 0.5]))
-    # sphere_left = Sphere([-1.0, 0.0, -1.0], 0.5, Metal([0.8, 0.8, 0.8], 0.3))
-    sphere_left = Sphere([-1.0, 0.0, -1.0], -0.4, Dielectric(1.5))
-    sphere_right = Sphere([1.0, 0.0, -1.0], 0.5, Metal([0.8, 0.6, 0.2], 0.0))
+    # camera
+    lookfrom = [13.0, 2.0, 3.0]
+    lookat = [0.0, 0.0, 0.0]
+    vup = [0.0, 1.0, 0.0]
+    focus_dist = 10.0
+    aperture = 0.1
+    camera = Camera(lookfrom, lookat, vup, 20, aspect_ratio, aperture, focus_dist)
 
-    world = [ground, sphere_centre, sphere_left, sphere_right]
+    # world - list of hittable objects
+    world = random_scene()
 
     # render
     pb = ProgressBar()
