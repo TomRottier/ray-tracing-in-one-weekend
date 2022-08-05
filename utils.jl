@@ -13,6 +13,13 @@ function random_unit_sphere()
     end
 end
 
+function random_in_unit_disk()
+    while true
+        p = [2rand() - 1, 2rand() - 1, 0.0]
+        sum(abs2, p) ≤ 1.0 && return p
+    end
+end
+
 # ray reflection for incoming ray v and normal n at intersection point
 reflect(v, n) = v - 2 * (v ⋅ n) * n
 

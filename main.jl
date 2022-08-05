@@ -15,8 +15,12 @@ function main()
     output = Matrix{RGB}(undef, image_height, image_width)
 
     # camera
-    # camera = Camera(aspect_ratio=aspect_ratio, height=2.0, focal_length=1.0, origin=[0.0, 0.0, 0.0])
-    camera = Camera([-2.0, 2.0, 1.0], [0.0, 0.0, -1.0], [0.0, 1.0, 0.0], 20, aspect_ratio)
+    lookfrom = [3.0, 3.0, 2.0]
+    lookat = [0.0, 0.0, -1.0]
+    vup = [0.0, 1.0, 0.0]
+    focus_dist = norm(lookfrom - lookat)
+    aperture = 2.0
+    camera = Camera(lookfrom, lookat, vup, 20, aspect_ratio, aperture, focus_dist)
     n_samples = 100
     max_depth = 50
 
